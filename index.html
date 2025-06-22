@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>생각의 자유</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Nanum Gothic', sans-serif;
+      background-color: #fdf5e6;
+      color: #333;
+    }
+    header {
+      background-color: #8b5e3c;
+      color: white;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.5em;
+    }
+    nav {
+      background-color: #f5deb3;
+      padding: 0.5em;
+      display: flex;
+      justify-content: space-around;
+      font-weight: bold;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: #5c4033;
+      text-decoration: none;
+      padding: 0.5em;
+    }
+    .welcome {
+      background-color: #fff8dc;
+      padding: 1em;
+      text-align: center;
+      font-style: italic;
+    }
+    .post-list {
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 1em;
+      background: #fffaf0;
+      border: 1px solid #e0d3af;
+      border-radius: 8px;
+    }
+    .post {
+      border-bottom: 1px dashed #d2b48c;
+      padding: 0.5em 0;
+    }
+    .comment-section {
+      margin-top: 0.5em;
+      padding-left: 1em;
+      font-size: 0.9em;
+    }
+    .comment {
+      border-top: 1px solid #ddd;
+      margin-top: 0.5em;
+      padding-top: 0.5em;
+    }
+    .footer {
+      text-align: center;
+      padding: 1em;
+      font-size: 0.9em;
+      color: #7d5a4f;
+    }
+    .write-button {
+      display: block;
+      width: 150px;
+      margin: 2em auto;
+      padding: 0.5em;
+      background-color: #a0522d;
+      color: white;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+    .write-button:hover {
+      background-color: #7b3f21;
+    }
+    form {
+      max-width: 600px;
+      margin: 2em auto;
+      padding: 1em;
+      background: #fffaf0;
+      border: 1px solid #e0d3af;
+      border-radius: 8px;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 0.5em;
+      margin: 0.5em 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    form button {
+      padding: 0.5em 1em;
+      background-color: #a0522d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    form button:hover {
+      background-color: #7b3f21;
+    }
+    @media (max-width: 640px) {
+      nav {
+        flex-direction: column;
+        align-items: center;
+      }
+      .write-button {
+        width: 80%;
+      }
+      form, .post-list {
+        width: 90%;
+        margin: 1em auto;
+      }
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('write');
+      const authorInput = document.getElementById('author');
+      const contentInput = document.getElementById('content');
+      const postList = document.querySelector('.post-list');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const author = authorInput.value.trim() || '익명';
+        const content = contentInput.value.trim();
+        if (!content) return;
+
+        const post = document.createElement('div');
+        post.classList.add('post');
+        post.innerHTML = `<strong>${author}</strong> | ${content}`;
+
+        const commentSection = document.createElement('div');
+        commentSection.classList.add('comment-section');
+        commentSection.innerHTML = `
+          <form class="comment-form">
+            <input type="text" placeholder="댓글 작성 (익명)">
+            <button type="submit">등록</button>
+          </form>
+          <div class="comments"></div>
+        `;
+        post.appendChild(commentSection);
+        postList.insertBefore(post, postList.firstChild);
+
+        authorInput.value = '';
+        contentInput.value = '';
+        location.hash = "#top";
+      });
+
+      postList.addEventListener('submit', function (e) {
+        if (e.target.classList.contains('comment-form')) {
+          e.preventDefault();
+          const input = e.target.querySelector('input');
+          const text = input.value.trim();
+          if (!text) return;
+          const comment = document.createElement('div');
+          comment.classList.add('comment');
+          comment.textContent = `익명 | ${text}`;
+          e.target.nextElementSibling.appendChild(comment);
+          input.value = '';
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <header id="top">
+    생각의 자유
+  </header>
+  <nav>
+    <a href="#top">홈</a>
+    <a href="#write">글쓰기</a>
+    <a href="#">내글보기</a>
+    <a href="#">로그인</a>
+  </nav>
+  <div class="welcome">
+    🍶 오늘도 마음 편히 이야기하고 가세요.
+  </div>
+  <div class="post-list"></div>
+  <a href="#write" class="write-button">🖊️ 글쓰기</a>
+
+  <form id="write">
+    <h3>글쓰기</h3>
+    <label for="author">작성자 (익명 허용)</label>
+    <input type="text" id="author" placeholder="익명 또는 사용자명 입력">
+
+    <label for="content">내용</label>
+    <textarea id="content" rows="5" placeholder="하고 싶은 이야기를 자유롭게 작성하세요."></textarea>
+
+    <button type="submit">등록하기</button>
+  </form>
+
+  <div class="footer">
+    📛 비난, 욕설, 공격적, 눈치주기 사양합니다. 마음만 두고 가세요.
+  </div>
+</body>
+</html>
