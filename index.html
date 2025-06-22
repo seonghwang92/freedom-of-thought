@@ -15,7 +15,122 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <style>
-    /* 기존 스타일 유지 */
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fdf6e3;
+      color: #333;
+    }
+    header {
+      background-color: #5d4037;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    nav {
+      background-color: #efebe9;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 0.5rem 0;
+    }
+    nav a {
+      text-decoration: none;
+      color: #5d4037;
+      font-weight: bold;
+    }
+    .welcome {
+      text-align: center;
+      padding: 1rem;
+      background: #fff3e0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.5rem;
+      background-color: #fce4ec;
+    }
+    .post-list {
+      padding: 1rem;
+    }
+    .post {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .reaction-buttons {
+      margin-top: 0.5rem;
+    }
+    .reaction-buttons button {
+      margin-right: 0.5rem;
+    }
+    .delete-post {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #ffcdd2;
+      border: none;
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+    }
+    .comment-section {
+      margin-top: 1rem;
+    }
+    .comment-form input {
+      width: 70%;
+      padding: 0.3rem;
+    }
+    .comment-form button {
+      padding: 0.3rem 0.7rem;
+      margin-left: 0.5rem;
+    }
+    .comments {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .write-button {
+      display: block;
+      text-align: center;
+      margin: 2rem auto;
+      text-decoration: none;
+      font-weight: bold;
+      background: #ffe082;
+      padding: 0.7rem 1.5rem;
+      border-radius: 30px;
+      color: #333;
+      width: max-content;
+    }
+    form#write {
+      background: #fff;
+      padding: 2rem;
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 600px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    form#write label, form#write select, form#write textarea, form#write button {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    .footer {
+      background: #efebe9;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
   </style>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
