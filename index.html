@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>생각의 자유</title>
+  <!-- SEO 및 Open Graph -->
+  <meta name="description" content="욕설과 눈치 없이, 자유롭게 이야기하는 심리 안전 커뮤니티">
+  <meta name="keywords" content="생각의 자유, 익명 커뮤니티, 공감, 심리 안전, 자유게시판">
+  <meta name="author" content="생각의 자유 운영진">
+  <meta property="og:title" content="생각의 자유">
+  <meta property="og:description" content="눈치 없이, 공감받고 싶은 날. 자유롭게 쓰고 마음만 두고 가세요.">
+  <meta property="og:image" content="https://freedom-of-thought.vercel.app/og-image.jpg">
+  <meta property="og:url" content="https://freedom-of-thought.vercel.app">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
     body {
       margin: 0;
@@ -36,6 +46,14 @@
       padding: 1em;
       text-align: center;
       font-style: italic;
+    }
+    .filter-bar {
+      text-align: center;
+      margin-top: 1em;
+    }
+    .filter-bar select {
+      font-size: 1em;
+      padding: 0.4em;
     }
     .post-list {
       max-width: 600px;
@@ -100,7 +118,7 @@
       border: 1px solid #e0d3af;
       border-radius: 8px;
     }
-    form input, form textarea {
+    form input, form textarea, form select {
       width: 100%;
       padding: 0.5em;
       margin: 0.5em 0;
@@ -147,39 +165,49 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('write');
-      const authorInput = document.getElementById('author');
       const contentInput = document.getElementById('content');
+      const categoryInput = document.getElementById('category');
       const postList = document.querySelector('.post-list');
-
+      const filter = document.getElementById('filter');
       const nickname = localStorage.getItem('nickname') || prompt("닉네임을 입력해주세요 (익명 가능):") || "익명";
       localStorage.setItem('nickname', nickname);
 
-      const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
-      savedPosts.forEach((data, index) => {
-        renderPost(data.author, data.content, index);
-      });
+      function loadPosts() {
+        postList.innerHTML = '';
+        const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+        savedPosts.forEach((data, index) => {
+          if (!filter.value || filter.value === data.category) {
+            renderPost(data.author, data.content, data.category, index);
+          }
+        });
+      }
+
+      loadPosts();
 
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         const author = nickname;
         const content = contentInput.value.trim();
+        const category = categoryInput.value;
         if (!content || containsBadWords(content)) return alert('공격적이거나 부적절한 표현이 감지되었습니다.');
 
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        const postData = { author, content };
+        const postData = { author, content, category };
         posts.unshift(postData);
         localStorage.setItem('posts', JSON.stringify(posts));
 
-        renderPost(author, content, 0);
+        renderPost(author, content, category, 0);
 
         contentInput.value = '';
         location.hash = "#top";
       });
 
-      function renderPost(author, content, index) {
+      filter.addEventListener('change', loadPosts);
+
+      function renderPost(author, content, category, index) {
         const post = document.createElement('div');
         post.classList.add('post');
-        post.innerHTML = `<strong>${author}</strong> | ${content}`;
+        post.innerHTML = `<strong>${author}</strong> | [${category}] ${content}`;
 
         const delBtn = document.createElement('button');
         delBtn.classList.add('delete-post');
@@ -194,7 +222,7 @@
 
         const reaction = document.createElement('div');
         reaction.classList.add('reaction-buttons');
-        ['공감', '위로', '생각중'].forEach(label => {
+        ['공감', '생각해볼필요'].forEach(label => {
           const btn = document.createElement('button');
           btn.textContent = label;
           btn.addEventListener('click', () => {
@@ -215,7 +243,7 @@
         `;
         post.appendChild(commentSection);
 
-        postList.insertBefore(post, postList.firstChild);
+        postList.appendChild(post);
       }
 
       postList.addEventListener('submit', function (e) {
@@ -252,10 +280,21 @@
   <div class="welcome">
     🍶 오늘도 마음 편히 이야기하고 가세요.
   </div>
+  <div class="filter-bar">
+    <label for="filter">카테고리: </label>
+    <select id="filter">
+      <option value="">전체</option>
+      <option value="예술">예술</option>
+    </select>
+  </div>
   <div class="post-list"></div>
   <a href="#write" class="write-button">🖊️ 글쓰기</a>
   <form id="write">
     <h3>글쓰기</h3>
+    <label for="category">카테고리</label>
+    <select id="category">
+      <option value="예술">예술</option>
+    </select>
     <label for="content">내용</label>
     <textarea id="content" rows="5" placeholder="하고 싶은 이야기를 자유롭게 작성하세요."></textarea>
     <button type="submit">등록하기</button>
