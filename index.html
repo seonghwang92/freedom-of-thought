@@ -48,6 +48,7 @@
     .post {
       border-bottom: 1px dashed #d2b48c;
       padding: 0.5em 0;
+      position: relative;
     }
     .comment-section {
       margin-top: 0.5em;
@@ -58,6 +59,18 @@
       border-top: 1px solid #ddd;
       margin-top: 0.5em;
       padding-top: 0.5em;
+    }
+    .delete-post {
+      position: absolute;
+      top: 0.5em;
+      right: 0.5em;
+      background: #c14444;
+      color: white;
+      border: none;
+      padding: 0.2em 0.5em;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
     }
     .footer {
       text-align: center;
@@ -106,6 +119,17 @@
     form button:hover {
       background-color: #7b3f21;
     }
+    .reaction-buttons {
+      margin-top: 0.5em;
+    }
+    .reaction-buttons button {
+      margin-right: 0.5em;
+      background-color: #e0c097;
+      border: none;
+      padding: 0.3em 0.6em;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     @media (max-width: 640px) {
       nav {
         flex-direction: column;
@@ -127,15 +151,58 @@
       const contentInput = document.getElementById('content');
       const postList = document.querySelector('.post-list');
 
+      const nickname = localStorage.getItem('nickname') || prompt("닉네임을 입력해주세요 (익명 가능):") || "익명";
+      localStorage.setItem('nickname', nickname);
+
+      const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+      savedPosts.forEach((data, index) => {
+        renderPost(data.author, data.content, index);
+      });
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        const author = authorInput.value.trim() || '익명';
+        const author = nickname;
         const content = contentInput.value.trim();
-        if (!content) return;
+        if (!content || containsBadWords(content)) return alert('공격적이거나 부적절한 표현이 감지되었습니다.');
 
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const postData = { author, content };
+        posts.unshift(postData);
+        localStorage.setItem('posts', JSON.stringify(posts));
+
+        renderPost(author, content, 0);
+
+        contentInput.value = '';
+        location.hash = "#top";
+      });
+
+      function renderPost(author, content, index) {
         const post = document.createElement('div');
         post.classList.add('post');
         post.innerHTML = `<strong>${author}</strong> | ${content}`;
+
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('delete-post');
+        delBtn.textContent = '삭제';
+        delBtn.addEventListener('click', () => {
+          const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+          posts.splice(index, 1);
+          localStorage.setItem('posts', JSON.stringify(posts));
+          post.remove();
+        });
+        post.appendChild(delBtn);
+
+        const reaction = document.createElement('div');
+        reaction.classList.add('reaction-buttons');
+        ['공감', '위로', '생각중'].forEach(label => {
+          const btn = document.createElement('button');
+          btn.textContent = label;
+          btn.addEventListener('click', () => {
+            btn.disabled = true;
+          });
+          reaction.appendChild(btn);
+        });
+        post.appendChild(reaction);
 
         const commentSection = document.createElement('div');
         commentSection.classList.add('comment-section');
@@ -147,19 +214,16 @@
           <div class="comments"></div>
         `;
         post.appendChild(commentSection);
-        postList.insertBefore(post, postList.firstChild);
 
-        authorInput.value = '';
-        contentInput.value = '';
-        location.hash = "#top";
-      });
+        postList.insertBefore(post, postList.firstChild);
+      }
 
       postList.addEventListener('submit', function (e) {
         if (e.target.classList.contains('comment-form')) {
           e.preventDefault();
           const input = e.target.querySelector('input');
           const text = input.value.trim();
-          if (!text) return;
+          if (!text || containsBadWords(text)) return alert('공격적이거나 부적절한 댓글은 등록할 수 없습니다.');
           const comment = document.createElement('div');
           comment.classList.add('comment');
           comment.textContent = `익명 | ${text}`;
@@ -167,6 +231,11 @@
           input.value = '';
         }
       });
+
+      function containsBadWords(text) {
+        const badWords = ['욕', '씨발', 'ㅅㅂ', '좆', '병신', '개새', '죽어', '꺼져'];
+        return badWords.some(word => text.includes(word));
+      }
     });
   </script>
 </head>
@@ -185,18 +254,12 @@
   </div>
   <div class="post-list"></div>
   <a href="#write" class="write-button">🖊️ 글쓰기</a>
-
   <form id="write">
     <h3>글쓰기</h3>
-    <label for="author">작성자 (익명 허용)</label>
-    <input type="text" id="author" placeholder="익명 또는 사용자명 입력">
-
     <label for="content">내용</label>
     <textarea id="content" rows="5" placeholder="하고 싶은 이야기를 자유롭게 작성하세요."></textarea>
-
     <button type="submit">등록하기</button>
   </form>
-
   <div class="footer">
     📛 비난, 욕설, 공격적, 눈치주기 사양합니다. 마음만 두고 가세요.
   </div>
